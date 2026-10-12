@@ -1,0 +1,26 @@
+BasedOnStyle: LLVM
+ColumnLimit: 120
+
+BreakBeforeBraces: Allman
+BraceWrapping:
+  AfterClass: true
+  AfterStruct: true
+  AfterFunction: true
+  AfterControlStatement: Never
+  AfterEnum: true
+  AfterNamespace: true
+  BeforeElse: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+
+AlignAfterOpenBracket: true
+BinPackParameters: AlwaysOnePerLine
+BinPackArguments: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+BreakTemplateDeclarations: Yes
+
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+
+AlignConsecutiveDeclarations: Consecutive

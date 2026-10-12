@@ -1,0 +1,13 @@
+{
+  "name": "yapper",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "asio",
+    "libsodium",
+    "nlohmann-json",
+    { "name": "glfw3", "platform": "windows" },
+    { "name": "opus", "platform": "windows" },
+    { "name": "miniaudio", "platform": "windows" },
+    { "name": "openh264", "platform": "windows" }
+  ]
+}
