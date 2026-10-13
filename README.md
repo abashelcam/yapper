@@ -49,6 +49,24 @@ Test mode (no window, default devices, logs to `yapper_client.log` next to the e
 yapper_client.exe host port username [password]
 ```
 
+## Client (iPhone)
+
+A SwiftUI client in `ios/`. It speaks the same protocol, so it talks to the same server and to Windows users. It does voice, text chat, channels, and watching screen shares. It can't share its own screen.
+
+Build it on a Mac with Xcode 15 or newer:
+
+```sh
+brew install xcodegen
+cd ios && xcodegen
+open Yapper.xcodeproj
+```
+
+Xcode fetches libsodium and Opus as Swift packages. Pick your team under Signing & Capabilities, then run it on a phone.
+
+For TestFlight, change the bundle id (`com.example.yapper`) to one you own, and raise `CURRENT_PROJECT_VERSION` in `ios/project.yml` for each upload. Then use Product > Archive and Distribute App. App Store Connect asks about encryption export compliance on the first upload, because the app uses libsodium.
+
+Known servers are remembered in the app. If a server's key changes on purpose, delete and reinstall the app.
+
 ## License
 
 MIT No Attribution (MIT-0): use it, change it, share it, no credit needed. See `LICENSE`. ImGui in `third_party/imgui` keeps its own MIT license.
