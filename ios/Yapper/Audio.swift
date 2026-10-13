@@ -138,12 +138,19 @@ final class Audio
       try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetooth])
       try session.setActive(true)
 
-      // Echo cancellation, otherwise the phone speaker feeds everyone back into the mic
+      // Echo cancellation, otherwise the phone speaker feeds everyone back into the mic.
+      // Optional: the Simulator doesn't have it, and voice still works without it on headphones.
       let input = engine.inputNode
-      try input.setVoiceProcessingEnabled(true)
+      try? input.setVoiceProcessingEnabled(true)
 
       let inputFormat = input.outputFormat(forBus: 0)
+      guard inputFormat.sampleRate > 0 else
+      {
+        throw AudioError("no microphone found")
+      }
       converter = AVAudioConverter(from: inputFormat, to: format)
+      // Voice processing can hand over several channels, mix them down to the one Opus wants
+      converter?.downmix = true
       input.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
         self?.capture(buffer)
       }
