@@ -112,6 +112,8 @@ final class Audio
   private var muted = false
   private var deafened = false
 
+  private var reconfigure: NSObjectProtocol?
+
   // Only touched by the mic tap
   private var converter: AVAudioConverter?
   private var captured: [Float] = []
@@ -143,18 +145,6 @@ final class Audio
       let input = engine.inputNode
       try? input.setVoiceProcessingEnabled(true)
 
-      let inputFormat = input.outputFormat(forBus: 0)
-      guard inputFormat.sampleRate > 0 else
-      {
-        throw AudioError("no microphone found")
-      }
-      converter = AVAudioConverter(from: inputFormat, to: format)
-      // Voice processing can hand over several channels, mix them down to the one Opus wants
-      converter?.downmix = true
-      input.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
-        self?.capture(buffer)
-      }
-
       let source = AVAudioSourceNode(format: format) { [weak self] _, _, frameCount, buffers in
         self?.playback(UnsafeMutableAudioBufferListPointer(buffers), Int(frameCount))
         return noErr
@@ -162,7 +152,7 @@ final class Audio
       engine.attach(source)
       engine.connect(source, to: engine.mainMixerNode, format: format)
 
-      try engine.start()
+      try startEngine()
     }
     catch
     {
@@ -173,10 +163,43 @@ final class Audio
 
   deinit
   {
+    if let reconfigure
+    {
+      NotificationCenter.default.removeObserver(reconfigure)
+    }
     engine.inputNode.removeTap(onBus: 0)
     engine.stop()
     opus_encoder_destroy(encoder)
     try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+  }
+
+  // Also runs again after a configuration change. The engine stops itself on those
+  // (route change, headphones, the Simulator settling its devices) and has to be started again.
+  private func startEngine() throws
+  {
+    let input = engine.inputNode
+    input.removeTap(onBus: 0)
+
+    let inputFormat = input.outputFormat(forBus: 0)
+    guard inputFormat.sampleRate > 0 else
+    {
+      throw AudioError("no microphone found")
+    }
+    converter = AVAudioConverter(from: inputFormat, to: format)
+    // Voice processing can hand over several channels, mix them down to the one Opus wants
+    converter?.downmix = true
+    input.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
+      self?.capture(buffer)
+    }
+
+    try engine.start()
+
+    if reconfigure == nil
+    {
+      reconfigure = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
+        try? self?.startEngine()
+      }
+    }
   }
 
   // Called on the network queue
