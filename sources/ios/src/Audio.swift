@@ -1,5 +1,4 @@
 import AVFoundation
-import Copus
 
 // Port of sources/client/src/audio. 48 kHz mono Opus in 20 ms frames, voice activated.
 

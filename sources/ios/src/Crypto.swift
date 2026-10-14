@@ -1,5 +1,3 @@
-import Clibsodium
-
 // Same libsodium calls as sources/common/src/crypto.cpp, so both sides derive the same keys.
 
 enum Crypto
