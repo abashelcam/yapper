@@ -1,0 +1,8 @@
+# Named volume holding perfumes.json. Podman calls it "systemd-perfume-data".
+
+[Unit]
+Description=Perfume dashboard data
+
+[Volume]
+# Podman 4.8+: use a plain name instead of systemd-perfume-data.
+# VolumeName=perfume-data
